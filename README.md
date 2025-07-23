@@ -1,11 +1,12 @@
 # alx-prpject-nexus
-## 🛒 E-Commerce Product Catalog Backend (Django + PostgreSQL)
+
+# 🛒 E-Commerce Product Catalog Backend (Django + PostgreSQL)
 
 ## 📌 Overview
-This project implements the backend for an **e-commerce product catalog** system using Django and PostgreSQL. It simulates a real-world scenario focused on scalability, performance, and security. The backend provides REST APIs to manage products, categories, sellers, orders, and user authentication, supporting operations like filtering, sorting, searching, and pagination. API documentation is auto-generated and hosted using Swagger.
+This project implements the backend for an **e-commerce product catalog** system using Django and PostgreSQL. It simulates a real-world scenario focused on scalability, performance, and security. The backend provides REST APIs to manage products, categories, sellers, shopping lists (carts), orders, and user authentication, supporting operations like filtering, sorting, searching, and pagination. API documentation is auto-generated and hosted using Swagger.
 
 ## 🎯 Goals
-- Build secure and scalable CRUD APIs for managing **e-commerce catalog** entities such as products, categories, orders, and sellers.
+- Build secure and scalable CRUD APIs for managing **e-commerce catalog** entities such as products, categories, orders, shopping lists, and sellers.
 - Implement robust user authentication with JWT.
 - Enable efficient product discovery using filters, sorting, searching, and pagination.
 - Optimize database performance with indexes and query enhancements.
@@ -19,10 +20,11 @@ This project implements the backend for an **e-commerce product catalog** system
 - **Version Control**: Git (with semantic commits)
 
 ## 🔑 Key Features
-1. **CRUD Operations for Product Catalog, Sellers, and Orders**
+1. **CRUD Operations for Product Catalog, Sellers, Orders, and Shopping Lists**
    - Products: Add, update, retrieve, delete
    - Categories: Add, update, retrieve, delete
    - Orders: Place, view, manage
+   - Shopping List (Cart): Add/remove/update product quantities
    - Sellers: Associate products with seller/store
    - Users: Register, login (JWT-based)
 
@@ -97,6 +99,22 @@ This project implements the backend for an **e-commerce product catalog** system
 | created_at  | timestamp    | Time the order was created           |
 | status      | string       | Order status (e.g., pending, shipped)|
 
+### Shopping List (Cart)
+| Field       | Type       | Description                          |
+|-------------|------------|--------------------------------------|
+| id          | UUID       | Primary Key                          |
+| user_id     | foreign key| Linked to User                       |
+| created_at  | timestamp  | Auto-set on creation                 |
+| active      | boolean    | Whether this is the current cart     |
+
+### Shopping List Item
+| Field            | Type       | Description                            |
+|------------------|------------|----------------------------------------|
+| id               | UUID       | Primary Key                            |
+| shopping_list_id | foreign key| Linked to ShoppingList                 |
+| product_id       | foreign key| Linked to Product                      |
+| quantity         | integer    | Quantity of the product in the list    |
+
 ## 📡 API Endpoints
 
 ### Authentication
@@ -141,6 +159,15 @@ This project implements the backend for an **e-commerce product catalog** system
 | GET    | `/api/sellers/<id>/`| Retrieve seller details           |
 | PUT    | `/api/sellers/<id>/`| Update seller profile             |
 | DELETE | `/api/sellers/<id>/`| Delete seller (admin)             |
+
+### Shopping List (Cart)
+| Method | Endpoint                           | Description                              |
+|--------|------------------------------------|------------------------------------------|
+| GET    | `/api/shopping-list/`             | Retrieve current user's active list      |
+| POST   | `/api/shopping-list/items/`       | Add item to list                         |
+| PUT    | `/api/shopping-list/items/<id>/`  | Update quantity of a list item           |
+| DELETE | `/api/shopping-list/items/<id>/`  | Remove item from shopping list           |
+| POST   | `/api/shopping-list/checkout/`    | Checkout: convert shopping list to order |
 
 ## 🔍 Filtering, Searching, Pagination
 
