@@ -1,11 +1,11 @@
-# alx-project-nexus
-# 🛒 E-Commerce Product Catalog Backend (Django + PostgreSQL)
+# alx-prpject-nexus
+## 🛒 E-Commerce Product Catalog Backend (Django + PostgreSQL)
 
 ## 📌 Overview
-This project implements the backend for an **e-commerce product catalog** system using Django and PostgreSQL. It simulates a real-world scenario focused on scalability, performance, and security. The backend provides REST APIs to manage products, categories, and user authentication, supporting operations like filtering, sorting, searching, and pagination. API documentation is auto-generated and hosted using Swagger.
+This project implements the backend for an **e-commerce product catalog** system using Django and PostgreSQL. It simulates a real-world scenario focused on scalability, performance, and security. The backend provides REST APIs to manage products, categories, sellers, orders, and user authentication, supporting operations like filtering, sorting, searching, and pagination. API documentation is auto-generated and hosted using Swagger.
 
 ## 🎯 Goals
-- Build secure and scalable CRUD APIs for managing **e-commerce catalog** entities such as products and categories.
+- Build secure and scalable CRUD APIs for managing **e-commerce catalog** entities such as products, categories, orders, and sellers.
 - Implement robust user authentication with JWT.
 - Enable efficient product discovery using filters, sorting, searching, and pagination.
 - Optimize database performance with indexes and query enhancements.
@@ -19,13 +19,15 @@ This project implements the backend for an **e-commerce product catalog** system
 - **Version Control**: Git (with semantic commits)
 
 ## 🔑 Key Features
-1. **CRUD Operations for Product Catalog**
+1. **CRUD Operations for Product Catalog, Sellers, and Orders**
    - Products: Add, update, retrieve, delete
    - Categories: Add, update, retrieve, delete
+   - Orders: Place, view, manage
+   - Sellers: Associate products with seller/store
    - Users: Register, login (JWT-based)
 
 2. **Product Catalog API Enhancements**
-   - Filtering by category, price range
+   - Filtering by category, price range, and seller
    - Sorting by price, creation date
    - Searching by product name and description
    - Pagination for large product catalogs
@@ -40,7 +42,7 @@ This project implements the backend for an **e-commerce product catalog** system
    - Hosted Swagger available at `/swagger/`
 
 5. **Database Optimization**
-   - Indexes on `price` and `category` fields
+   - Indexes on `price`, `category`, and `seller` fields
    - Optimized queries using `select_related()` and `prefetch_related()`
 
 ## 🏗️ Overall Design
@@ -66,6 +68,13 @@ This project implements the backend for an **e-commerce product catalog** system
 | name  | string  | Unique category  |
 | slug  | string  | URL-friendly key |
 
+### Seller
+| Field       | Type     | Description                  |
+|-------------|----------|------------------------------|
+| id          | UUID     | Primary Key                  |
+| name        | string   | Seller or store name         |
+| user_id     | foreign key | Linked to User (store owner) |
+
 ### Product
 | Field       | Type       | Description                     |
 |-------------|------------|---------------------------------|
@@ -74,8 +83,19 @@ This project implements the backend for an **e-commerce product catalog** system
 | description | text       | Product description             |
 | price       | decimal    | Product price                   |
 | category_id | foreign key| Linked to Category              |
+| seller_id   | foreign key| Linked to Seller                |
 | created_at  | timestamp  | Auto-set on creation            |
 | updated_at  | timestamp  | Auto-set on update              |
+
+### Order
+| Field       | Type         | Description                          |
+|-------------|--------------|--------------------------------------|
+| id          | UUID         | Primary Key                          |
+| user_id     | foreign key  | User who placed the order            |
+| product_ids | many-to-many | Products included in the order       |
+| total_price | decimal      | Total price of the order             |
+| created_at  | timestamp    | Time the order was created           |
+| status      | string       | Order status (e.g., pending, shipped)|
 
 ## 📡 API Endpoints
 
@@ -90,10 +110,10 @@ This project implements the backend for an **e-commerce product catalog** system
 | Method | Endpoint          | Description                             |
 |--------|-------------------|-----------------------------------------|
 | GET    | `/api/products/`  | List products (filter, search, sort, paginate) |
-| POST   | `/api/products/`  | Create product (admin)                  |
+| POST   | `/api/products/`  | Create product (admin or seller)        |
 | GET    | `/api/products/<id>/` | Retrieve product details            |
-| PUT    | `/api/products/<id>/` | Update product (admin)              |
-| DELETE | `/api/products/<id>/` | Delete product (admin)              |
+| PUT    | `/api/products/<id>/` | Update product (admin or seller)    |
+| DELETE | `/api/products/<id>/` | Delete product (admin or seller)    |
 
 ### Categories
 | Method | Endpoint            | Description                        |
@@ -104,6 +124,24 @@ This project implements the backend for an **e-commerce product catalog** system
 | PUT    | `/api/categories/<id>/` | Update category (admin)       |
 | DELETE | `/api/categories/<id>/` | Delete category (admin)       |
 
+### Orders
+| Method | Endpoint           | Description                          |
+|--------|--------------------|--------------------------------------|
+| GET    | `/api/orders/`     | List user orders                     |
+| POST   | `/api/orders/`     | Create a new order                   |
+| GET    | `/api/orders/<id>/`| Retrieve specific order details      |
+| PUT    | `/api/orders/<id>/`| Update order status (admin)          |
+| DELETE | `/api/orders/<id>/`| Cancel/delete order (optional)       |
+
+### Sellers
+| Method | Endpoint           | Description                        |
+|--------|--------------------|------------------------------------|
+| GET    | `/api/sellers/`    | List all sellers                   |
+| POST   | `/api/sellers/`    | Register a new seller/store        |
+| GET    | `/api/sellers/<id>/`| Retrieve seller details           |
+| PUT    | `/api/sellers/<id>/`| Update seller profile             |
+| DELETE | `/api/sellers/<id>/`| Delete seller (admin)             |
+
 ## 🔍 Filtering, Searching, Pagination
 
 ### 🔎 Filtering
@@ -111,6 +149,7 @@ Products can be filtered using:
 - `?category=<category_id>`
 - `?min_price=<value>`
 - `?max_price=<value>`
+- `?seller=<seller_id>`
 
 ### 🔤 Searching
 Products can be searched via:
@@ -129,4 +168,3 @@ Uses page number pagination:
 ---
 
 For deployment, environment variables and `.env.example` should be provided, and API documentation should be publicly hosted and accessible for easy frontend integration and testing.
-
